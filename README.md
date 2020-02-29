@@ -5,4 +5,7 @@ This is the django back end for the MVK project "Tinder for trucks".
 - Docker
 
 ### Start development server by
-- docker-compose up -d
+- Start the docker daemon
+- Open a terminal (e.g CMD for Windows)
+- Navigate to the root directory of the project
+- Run the command `docker-compose up -d`
