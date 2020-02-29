@@ -55,7 +55,6 @@ def reset_password_request(request):
     uid = urlsafe_base64_encode(force_bytes(user.pk))
     token = default_token_generator.make_token(user)
     link = reverse('reset_password_confirmed', kwargs={'uidb64': uid, 'token': token})
-    # TODO: Implement
     # send_password_reset_confirmation_email(email, f'{BASE_URL}{link}')
     return HttpResponse('E-mail sent successfully', status=200)
 
