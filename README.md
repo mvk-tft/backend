@@ -1,6 +1,7 @@
 # "Tinder for trucks" back end
 This is the django back end for the MVK project "Tinder for trucks".
 
+## Setup
 ### Prerequisites to develop
 - Python 3.8
 - Intellij IDEA or PyCharm (Optional, recommended)
@@ -21,7 +22,7 @@ This is the django back end for the MVK project "Tinder for trucks".
 4. Run the command `docker-compose run web python manage.py createsuperuser` and follow the prompts in order to create a superuser for the database.
 5. Repeat steps 1-3 whenever you make a change to any of the `models.py` files in the project.
 
-### Structure
+## Structure
 Descriptions of the directories in this repository.
 #### account-directory
 This directory contains the django-app `account` which manages the account configurations for the project.
