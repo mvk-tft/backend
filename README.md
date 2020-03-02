@@ -40,3 +40,8 @@ This feature-set includes:
 
 #### backend-directory
 This directory contains the common configuration of the project.
+
+## When developing
+Always create a new branch when developing a new feature and name it like `feature/descriptive-name` where `descriptive-name` is a suitable name to describe the feature.
+Whenever a feature is complete, make a pull request towards the `master`-branch in order to merge the feature.
+This way of working is common within larger teams and companies and so is good to get used to.
