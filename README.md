@@ -14,6 +14,7 @@ This is the django back end for the MVK project "Tinder for trucks".
 2. Open a terminal (e.g CMD for Windows)
 3. Navigate to the root directory of the project
 4. Run the command `docker-compose up -d`
+5. In order to shutdown the development server, run the command `docker-compose down`
 
 ### Setup database
 1. Start the development server
