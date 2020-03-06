@@ -13,7 +13,7 @@ urlpatterns = [
     path('<int:pk>/', UserPut.as_view(), name='user_put'),
     path('user/', CurrentUserView.as_view(), name='current_user'),
     path('reset_password/', reset_password_request, name='reset_password_request'),
-    re_path(r'auth/reset_password_confirm/(?P<uidb64>[0-9A-Za-z]+)-(?P<token>.+)/', reset_password_confirmed,
+    re_path(r'reset_password_confirm/(?P<uidb64>[0-9A-Za-z]+)-(?P<token>.+)/', reset_password_confirmed,
             name='reset_password_confirmed'),
 ]
 
