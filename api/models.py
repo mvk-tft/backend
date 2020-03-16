@@ -5,10 +5,15 @@ from django.utils.translation import gettext_lazy as _
 
 class Company(models.Model):
     name = models.CharField(max_length=255)
+    description = models.TextField(blank=True)
+    sign_up_datetime = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name_plural = 'Companies'
 
 
 class Truck(models.Model):
-    owner = models.ForeignKey(Company, on_delete=models.CASCADE)
+    company = models.ForeignKey(Company, on_delete=models.CASCADE)
     weight_capacity = models.IntegerField()
     volume_capacity = models.IntegerField()
 
@@ -20,6 +25,8 @@ class Shipment(models.Model):
     earliest_arrival_time = models.DateTimeField()
     latest_arrival_time = models.DateTimeField()
     truck = models.ForeignKey(Truck, on_delete=models.DO_NOTHING, null=True)
+    created = models.DateTimeField(auto_now_add=True)
+    modified = models.DateTimeField(auto_now=True)
 
 
 class Cargo(models.Model):
@@ -28,7 +35,7 @@ class Cargo(models.Model):
         COLD = 'C', _('Cold wares'),
         REGULAR = 'R', _('Regular wares'),
 
-    owner = models.ForeignKey(Company, on_delete=models.CASCADE)
+    company = models.ForeignKey(Company, on_delete=models.CASCADE)
     weight = models.IntegerField()
     volume = models.IntegerField()
     category = models.CharField(max_length=255, choices=CargoCategory.choices, default=CargoCategory.REGULAR)
