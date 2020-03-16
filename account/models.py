@@ -2,6 +2,8 @@ from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
+from api.models import Company
+
 
 class UserManager(BaseUserManager):
     """Define a model manager for User model with no username field."""
@@ -40,6 +42,7 @@ class UserManager(BaseUserManager):
 class CustomUser(AbstractUser):
     username = None
     email = models.EmailField(unique=True)
+    company = models.ForeignKey(Company, on_delete=models.DO_NOTHING, null=True)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
