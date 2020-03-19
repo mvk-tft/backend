@@ -30,10 +30,13 @@ class Shipment(models.Model):
 
 
 class Cargo(models.Model):
-    # TODO: Look over categories (see issue #5)
     class CargoCategory(models.TextChoices):
-        COLD = 'C', _('Cold wares'),
-        REGULAR = 'R', _('Regular wares'),
+        REGULAR =    'R', _('Regular wares'),
+        COLD =       'C', _('Cold wares'),
+        FROZEN =     'F', _('Frozen wares'),
+        WARM =       'W', _('Warmed wares'),
+        HAZARDOUS =  'H', _('Hazardous materials'),
+
 
     company = models.ForeignKey(Company, on_delete=models.CASCADE)
     weight = models.IntegerField()
