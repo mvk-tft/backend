@@ -25,18 +25,18 @@ class Shipment(models.Model):
     earliest_arrival_time = models.DateTimeField()
     latest_arrival_time = models.DateTimeField()
     truck = models.ForeignKey(Truck, on_delete=models.DO_NOTHING, null=True)
+    company = models.ForeignKey(Company, on_delete=models.CASCADE)
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
 
 
 class Cargo(models.Model):
     class CargoCategory(models.TextChoices):
-        REGULAR =    'R', _('Regular wares'),
-        COLD =       'C', _('Cold wares'),
-        FROZEN =     'F', _('Frozen wares'),
-        WARM =       'W', _('Warmed wares'),
-        HAZARDOUS =  'H', _('Hazardous materials'),
-
+        REGULAR = 'R', _('Regular wares'),
+        COLD = 'C', _('Cold wares'),
+        FROZEN = 'F', _('Frozen wares'),
+        WARM = 'W', _('Warmed wares'),
+        HAZARDOUS = 'H', _('Hazardous materials'),
 
     company = models.ForeignKey(Company, on_delete=models.CASCADE)
     weight = models.IntegerField()
