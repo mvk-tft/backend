@@ -16,7 +16,7 @@ class ShipmentList(generics.ListCreateAPIView):
         return Shipment.objects.filter(company=self.request.user.company)
 
 
-# Retrive, update or delete shipment instance
+# Retrieve, update or delete shipment instance
 class ShipmentDetail(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = ShipmentSerializer
     permission_classes = [IsAuthenticated]
@@ -57,7 +57,7 @@ class CargoList(generics.ListCreateAPIView):
 
     def get_queryset(self):
         if self.request.user.is_staff:
-            return Truck.objects.all()
+            return Cargo.objects.all()
         return Cargo.objects.filter(company=self.request.user.company)
 
 
@@ -68,7 +68,7 @@ class CargoDetail(generics.RetrieveUpdateDestroyAPIView):
 
     def get_queryset(self):
         if self.request.user.is_staff:
-            return Truck.objects.all()
+            return Cargo.objects.all()
         return Cargo.objects.filter(company=self.request.user.company)
 
 
@@ -79,7 +79,7 @@ class CompanyList(generics.ListCreateAPIView):
 
     def get_queryset(self):
         if self.request.user.is_staff:
-            return Truck.objects.all()
+            return Company.objects.all()
         return Company.objects.filter(pk=self.request.user.company.pk)
 
 
@@ -90,5 +90,5 @@ class CompanyDetail(generics.RetrieveUpdateDestroyAPIView):
 
     def get_queryset(self):
         if self.request.user.is_staff:
-            return Truck.objects.all()
+            return Company.objects.all()
         return Company.objects.filter(pk=self.request.user.company.pk)
