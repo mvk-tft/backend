@@ -1,13 +1,15 @@
 version: '3.7'
 
 services:
+  redis:
+    image: redis
+    volumes:
+      - redis-data:/data
   db:
     image: postgres
     restart: always
-    environment:
-      POSTGRES_DB: django_backend
-      POSTGRES_USER: django_backend
-      POSTGRES_PASSWORD: root
+    env_file:
+      - dev.env
     volumes:
       - db-data:/var/lib/postgresql/data
   web:
@@ -21,7 +23,26 @@ services:
       - "8000:8000"
     depends_on:
       - db
-
+  celery-worker:
+    build: .
+    command: celery -A backend worker -l info
+    depends_on:
+      - redis
+    env_file:
+      - dev.env
+    volumes:
+      - .:/code
+  celery-beat:
+    build: .
+    command: celery -A backend beat -l info
+    depends_on:
+      - celery-worker
+    env_file:
+      - dev.env
+    volumes:
+      - .:/code
 volumes:
   db-data:
+    driver: local
+  redis-data:
     driver: local

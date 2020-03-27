@@ -1,3 +1,5 @@
 *.iml
 *.pyc
 *.pyo
+celerybeat.pid
+celerybeat-schedule
