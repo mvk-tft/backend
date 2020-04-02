@@ -84,11 +84,13 @@ class CompanyList(generics.ListCreateAPIView):
 
 
 # Retrieve, update or delete a company instance
-class CompanyDetail(generics.RetrieveUpdateDestroyAPIView):
+class CompanyDetail(generics.RetrieveUpdateAPIView):
     serializer_class = CompanySerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         if self.request.user.is_staff:
             return Company.objects.all()
+        if not self.request.user.company:
+            return Company.objects.none()
         return Company.objects.filter(pk=self.request.user.company.pk)
