@@ -1,6 +1,16 @@
-from django.contrib.postgres.fields import JSONField
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+
+
+class Location(models.Model):
+    address = models.CharField(max_length=255)
+    city = models.CharField(max_length=255)
+    postal_code = models.CharField(max_length=15)
+    latitude = models.IntegerField(null=True)
+    longitude = models.IntegerField(null=True)
+
+    def __str__(self):
+        return f'{self.address}, {self.postal_code} {self.city}'
 
 
 class Company(models.Model):
@@ -25,7 +35,8 @@ class Truck(models.Model):
 
 
 class Shipment(models.Model):
-    route = JSONField()
+    starting_location = models.ForeignKey(Location, on_delete=models.PROTECT, related_name='shipment_sources')
+    destination_location = models.ForeignKey(Location, on_delete=models.PROTECT, related_name='shipment_targets')
     earliest_start_time = models.DateTimeField()
     latest_start_time = models.DateTimeField()
     earliest_arrival_time = models.DateTimeField()

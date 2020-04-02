@@ -8,8 +8,7 @@ from dotenv import load_dotenv
 
 def main():
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'backend.settings')
-
-    load_dotenv('testing.env')
+    load_dotenv('dev.env')
 
     try:
         from django.core.management import execute_from_command_line

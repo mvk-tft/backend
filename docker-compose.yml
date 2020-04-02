@@ -25,7 +25,7 @@ services:
       - db
   celery-worker:
     build: .
-    command: celery -A backend worker -l info
+    command: bash -c "pip install -r requirements.txt && celery -A backend worker -l info"
     depends_on:
       - redis
     env_file:
@@ -34,7 +34,7 @@ services:
       - .:/code
   celery-beat:
     build: .
-    command: celery -A backend beat -l info
+    command: bash -c "pip install -r requirements.txt && celery -A backend beat -l info"
     depends_on:
       - celery-worker
     env_file:
