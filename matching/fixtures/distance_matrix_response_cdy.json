@@ -1,0 +1,34 @@
+{
+  "status": "OK",
+  "origin_addresses": [
+    "C"
+  ],
+  "destination_addresses": [
+    "D",
+    "Y"
+  ],
+  "rows": [
+    {
+      "elements": [
+        {
+          "status": "OK",
+          "duration": {
+            "value": 600
+          },
+          "distance": {
+            "value": 0
+          }
+        },
+        {
+          "status": "OK",
+          "duration": {
+            "value": 400
+          },
+          "distance": {
+            "value": 0
+          }
+        }
+      ]
+    }
+  ]
+}

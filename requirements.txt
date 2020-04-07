@@ -1,3 +1,4 @@
+requests
 python-dotenv
 networkx
 amqp==2.5.2
