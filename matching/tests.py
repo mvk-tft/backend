@@ -193,6 +193,15 @@ class MatchingTest(TestCase):
         self.assertEqual(mock.call_count, 9)
         self.assertListEqual(matches, [(shipments[0].pk, shipments[1].pk)])
 
+    @patch('matching.tasks.requests.get', autospec=True, side_effect=get_request_mock)
+    def test_find_match_with_disallowed_matches(self, mock):
+        shipments = Shipment.objects.all()
+        nearby_shipments = split_shipments(shipments)
+        matches = find_matches(nearby_shipments, [(2, 1)])  # (1, 2) and (2, 1) are considered the same
+
+        self.assertEqual(mock.call_count, 9)
+        self.assertListEqual(matches, [(shipments[0].pk, shipments[2].pk)])
+
     @patch('matching.tasks.calculate_travel_times', side_effect=randomize_times)
     def test_find_match_load(self, mock_travel_times):
         for _ in range(400):
