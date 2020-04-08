@@ -1,3 +1,17 @@
-from django.shortcuts import render
+from django.db.models import Q
+from rest_framework import generics
+from rest_framework.permissions import IsAuthenticated
 
-# Create your views here.
+from matching.models import Match
+from matching.serializers import MatchSerializer
+
+
+class MatchList(generics.ListAPIView):
+    serializer_class = MatchSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        if self.request.user.is_staff:
+            return Match.objects.all()
+        return Match.objects.filter(
+            Q(inner_shipment__company=self.request.user.company) | Q(outer_shipment__company=self.request.user.company))
