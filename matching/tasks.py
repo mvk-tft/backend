@@ -59,10 +59,10 @@ def find_matches(nearby_shipments, disallowed_matches):
             if not f.truck:
                 continue
             for j in range(count):
-                if i == j or (i, j) in disallowed_matches or (j, i) in disallowed_matches:
+                s = value[j]
+                if i == j or (f.pk, s.pk) in disallowed_matches or (s.pk, f.pk) in disallowed_matches:
                     continue
 
-                s = value[j]
                 src_travel_time = src_src_time[i][j]
                 dst_travel_time = dst_dst_time[i][j]
                 travel_time = src_dst_time[j]
