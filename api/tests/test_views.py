@@ -64,13 +64,13 @@ class CompanyTestCase(TestCase):
     def test_update_company_as_owner(self):
         company = self.create_company_and_set_owner()
 
-        company.description = "test update"
+        company.description = 'test update'
         company_json = to_json_data(company, CompanySerializer)
         response = put_request(f'/api/company/{company.pk}/', company_json, self.primary_user)
         self.assertEqual(response.status_code, 200)
 
         updated_company = Company.objects.get(pk=company.pk)
-        self.assertEqual(updated_company.description, "test update")
+        self.assertEqual(updated_company.description, 'test update')
 
     # Test that company can be retrieved
     def test_get_company_as_owner(self):
@@ -91,3 +91,17 @@ class CompanyTestCase(TestCase):
 
         response = get_request(f'/api/company/{company.pk}/', self.admin_user)
         self.assertEqual(response.status_code, 200)
+
+    # Test that 1000 companies can be created
+    def test_create_1000_companies(self):
+        numComp = 1000
+        for i in range(numComp):
+            company = to_json_data(mommy.prepare(Company, name=f'company{i}'), CompanySerializer)
+            response = post_request('/api/company/', company, self.primary_user)
+            self.assertEqual(response.status_code, 201)
+
+        companies = Company.objects.all()
+        self.assertEqual(len(companies), numComp)
+
+        for i, company in enumerate(companies):
+            self.assertEqual(company.name, f'company{i}')
