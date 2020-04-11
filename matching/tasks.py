@@ -70,7 +70,7 @@ def find_matches(nearby_shipments, disallowed_matches):
                 if validate_times(f, s, travel_time, src_travel_time, dst_travel_time) and validate_capacities(f, s):
                     total_time = src_travel_time + travel_time + dst_travel_time
                     graph.add_edge(f.pk, s.pk, weight=max_time - total_time)
-        results += list(nx.max_weight_matching(graph))
+        results += list(nx.max_weight_matching(graph, maxcardinality=True))
     return results
 
 
