@@ -12,3 +12,8 @@ class Match(models.Model):
     inner_shipment = models.ForeignKey(Shipment, on_delete=models.CASCADE, related_name='match_inner')
     outer_shipment = models.ForeignKey(Shipment, on_delete=models.CASCADE, related_name='match_outer')
     status = models.IntegerField(choices=Status.choices, default=Status.DEFAULT)
+
+
+class RejectedMatch(models.Model):
+    inner_shipment_pk = models.IntegerField()
+    outer_shipment_pk = models.IntegerField()
