@@ -2,27 +2,41 @@ import datetime
 
 import networkx as nx
 import requests
-from celery.schedules import crontab
-from celery.task import periodic_task
+from celery import shared_task
 from celery.utils.log import get_task_logger
 from django.conf import settings
 from django.db.models import Sum
 from django.db.models.functions import Coalesce
 
 from api.models import Shipment
-from matching.models import Match
+from matching.models import Match, RejectedMatch
 
 logger = get_task_logger(__name__)
 
 
-@periodic_task(run_every=(crontab(minute='*/1')), name='matching_task', ignore_result=True)
+@shared_task(ignore_result=True)
+def update_rejections_task():
+    rejected_matches = Match.objects.filter(status=Match.Status.REJECTED)
+    rejections = []
+
+    for match in rejected_matches:
+        rejections.append(RejectedMatch(outer_shipment_pk=match.outer_shipment.pk,
+                                        inner_shipment_pk=match.inner_shipment.pk))
+        match.delete()
+
+    RejectedMatch.objects.bulk_create(rejections)
+
+    logger.info(f'Rejections updated: {len(rejections)}')
+
+
+@shared_task(ignore_result=True)
 def matching_task():
     # Only retrieve shipments not yet matched
     shipments = Shipment.objects.filter(match_outer=None, match_inner=None).select_related('starting_location',
                                                                                            'destination_location') \
         .prefetch_related('cargo_set')
-    disallowed_matches = list(map(lambda item: (item.outer_shipment.pk, item.inner_shipment.pk),
-                                  Match.objects.filter(status=Match.Status.REJECTED)))
+    disallowed_matches = list(map(lambda item: (item.outer_shipment_pk, item.inner_shipment_pk),
+                                  RejectedMatch.objects.all()))
     matches = find_matches(split_shipments(shipments), disallowed_matches)
     prepared = []
     for (f, s) in matches:
