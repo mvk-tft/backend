@@ -1,6 +1,26 @@
-from django.contrib.postgres.fields import JSONField
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+
+import api.tasks as tasks
+
+
+class Location(models.Model):
+    address = models.CharField(max_length=255)
+    city = models.CharField(max_length=255, blank=True)
+    postal_code = models.CharField(max_length=15, blank=True)
+    latitude = models.FloatField(null=True)
+    longitude = models.FloatField(null=True)
+    place_id = models.CharField(max_length=255, blank=True)
+    last_geocoding_update = models.DateTimeField(null=True)
+    is_geocoded = models.BooleanField(default=False)
+
+    def save(self, *args, **kwargs):
+        super(Location, self).save(*args, **kwargs)
+        if self.pk and not self.is_geocoded:
+            tasks.geocode_location.delay(self.pk)
+
+    def __str__(self):
+        return f'{self.address}, {self.postal_code} {self.city}'
 
 
 class Company(models.Model):
@@ -25,7 +45,8 @@ class Truck(models.Model):
 
 
 class Shipment(models.Model):
-    route = JSONField()
+    starting_location = models.ForeignKey(Location, on_delete=models.PROTECT, related_name='shipment_sources')
+    destination_location = models.ForeignKey(Location, on_delete=models.PROTECT, related_name='shipment_targets')
     earliest_start_time = models.DateTimeField()
     latest_start_time = models.DateTimeField()
     earliest_arrival_time = models.DateTimeField()

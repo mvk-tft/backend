@@ -3,3 +3,4 @@
 *.pyo
 celerybeat.pid
 celerybeat-schedule
+db

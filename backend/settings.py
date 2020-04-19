@@ -18,6 +18,7 @@ HOST = os.environ.get('HOST', 'localhost')
 HTTPS = os.environ.get('HTTPS', 'false') == 'true'
 DEBUG = os.environ.get('DEBUG', 'false') == 'true'
 SECRET_KEY = os.environ.get('SECRET_KEY')
+GOOGLE_API_KEY = os.environ.get('GOOGLE_API_KEY')
 
 FRONTEND_URL = os.environ.get('FRONTEND_URL', 'http://localhost:3000')
 BACKEND_URL = 'https://' + HOST if HTTPS else 'http://' + HOST
@@ -48,8 +49,6 @@ if not DEBUG:
 # Application working directory
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-# Application definition
-
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -63,6 +62,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'api.apps.ApiConfig',
     'account.apps.AccountConfig',
+    'matching.apps.MatchingConfig',
 ]
 
 MIDDLEWARE = [
@@ -103,6 +103,7 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 
 if TESTING:
     # noinspection PyUnresolvedReferences
+    print('Using testing database')
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
