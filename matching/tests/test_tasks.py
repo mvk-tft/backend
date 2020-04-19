@@ -70,7 +70,7 @@ def randomize_times(shipments):
     return src_src_time, src_dst_time, dst_dst_time
 
 
-class MatchingTest(TestCase):
+class MatchingTestCase(TestCase):
     def setUp(self):
         mommy.make(Shipment, starting_location=get_loc('A', city=''),
                    destination_location=get_loc('D', city=''),
