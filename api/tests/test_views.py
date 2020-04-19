@@ -4,8 +4,8 @@ from model_mommy import mommy
 from rest_framework.renderers import JSONRenderer
 from rest_framework.test import APIRequestFactory, APIClient
 
-from api.models import Company
-from api.serializers import CompanySerializer
+from api.models import Company, Truck
+from api.serializers import CompanySerializer, TruckSerializer
 
 User = get_user_model()
 factory = APIRequestFactory()
@@ -105,3 +105,96 @@ class CompanyTestCase(TestCase):
 
         for i, company in enumerate(companies):
             self.assertEqual(company.name, f'company{i}')
+
+
+class TruckTestCase(TestCase):
+    def setUp(self):
+        self.primary_user = mommy.make(User, is_staff=False)
+        self.second_user = mommy.make(User, is_staff=False)
+        self.admin_user = mommy.make(User, is_staff=True)
+
+        self.primary_company = mommy.make(Company)
+        self.primary_user.company = self.primary_company
+        self.primary_user.save()
+
+    # Create a truck and assign it to a company with primary_user as owner
+    def create_truck(self, **kwargs):
+        truck = mommy.make(Truck, **kwargs)
+        truck.company = self.primary_company
+        truck.save()
+        return truck
+
+    # Test that a Truck can be created
+    def test_create_truck(self):
+        truck = to_json_data(mommy.prepare(Truck, company=self.primary_company), TruckSerializer)
+        response = post_request('/api/truck/', truck, self.primary_user)
+        self.assertEqual(response.status_code, 201)
+
+    # Test that 1000+ trucks can be created
+    def test_create_1000_trucks(self):
+        amount = 1500
+        for i in range(amount):
+            truck = to_json_data(mommy.prepare(Truck, company=self.primary_company, weight_capacity=i), TruckSerializer)
+            response = post_request('/api/truck/', truck, self.primary_user)
+            self.assertEqual(response.status_code, 201)
+
+        trucks = Truck.objects.all()
+        self.assertEqual(len(trucks), amount)
+
+        for i, t in enumerate(trucks):
+            self.assertEqual(t.weight_capacity, i)
+
+    # Test that a truck can be deleted by a owner
+    def test_delete_truck_as_owner(self):
+        truck = self.create_truck()
+        response = delete_request(f'/api/truck/{truck.pk}/', self.primary_user)
+        self.assertEqual(response.status_code, 204)
+
+    # Test that a truck can not be deleted by a user that isn't a owner
+    def test_delete_truck_as_non_owner(self):
+        truck = self.create_truck()
+        response = delete_request(f'/api/truck/{truck.pk}/', self.second_user)
+        self.assertEqual(response.status_code, 404)
+
+    # Test that a truck can be updated by a owner
+    def test_update_truck_as_owner(self):
+        truck = self.create_truck()
+        truck.weight_capacity = 100
+        truck_json = to_json_data(truck, TruckSerializer)
+
+        response = put_request(f'/api/truck/{truck.pk}/', truck_json, self.primary_user)
+        self.assertEqual(response.status_code, 200)
+
+        updated_truck = Truck.objects.get(pk=truck.pk)
+        self.assertEqual(updated_truck.weight_capacity, 100)
+
+    # Test that a truck can not be updated by a user that isn't a owner
+    def test_update_truck_as_non_owner(self):
+        truck = self.create_truck()
+        previous_truck_weight_capacity = truck.weight_capacity
+        truck.weight_capacity = 100
+        truck_json = to_json_data(truck, TruckSerializer)
+
+        response = put_request(f'/api/truck/{truck.pk}/', truck_json, self.second_user)
+        self.assertEqual(response.status_code, 404)
+
+        updated_truck = Truck.objects.get(pk=truck.pk)
+        self.assertEqual(updated_truck.weight_capacity, previous_truck_weight_capacity)
+
+    # Test that a truck can be retrieved by a owner
+    def test_get_truck_as_owner(self):
+        truck = self.create_truck()
+        response = get_request(f'/api/truck/{truck.pk}/', self.primary_user)
+        self.assertEqual(response.status_code, 200)
+
+    # Test that a truck can not be retrieved by a non authorized user
+    def test_get_truck_as_non_owner(self):
+        truck = self.create_truck()
+        response = get_request(f'/api/truck/{truck.pk}/', self.second_user)
+        self.assertEqual(response.status_code, 404)
+
+    # Test that a truck can be retrieved by admin user
+    def test_get_truck_as_admin(self):
+        truck = self.create_truck()
+        response = get_request(f'/api/truck/{truck.pk}/', self.admin_user)
+        self.assertEqual(response.status_code, 200)
