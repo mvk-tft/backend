@@ -27,7 +27,7 @@ def matching_task():
     prepared = []
     for (f, s) in matches:
         # Outer shipment is the one going the whole route and whose truck will be used
-        match = Match(outer_shipment=f, inner_shipment=s)
+        match = Match(outer_shipment=shipments.get(pk=f), inner_shipment=shipments.get(pk=s))
         prepared.append(match)
     Match.objects.bulk_create(matches)
 

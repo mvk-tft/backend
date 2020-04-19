@@ -3,6 +3,7 @@ import os
 import random
 from unittest.mock import patch
 
+from django.conf import settings
 from django.db.models import Sum
 from django.db.models.functions import Coalesce
 from django.test import TestCase
@@ -11,7 +12,7 @@ from model_mommy import mommy
 
 from api.models import Shipment, Location, Cargo, Truck
 from matching.tasks import request_distances_and_travel_times, split_shipments, validate_capacities, validate_times, \
-    calculate_travel_times, find_matches
+    calculate_travel_times, find_matches, matching_task
 
 
 def get_time(hour, minute):
@@ -86,6 +87,9 @@ class MatchingTest(TestCase):
                    latest_start_time=get_time(8, 45), latest_arrival_time=get_time(10, 15)),
 
     def test_distance_and_travel_time(self):
+        if settings.GOOGLE_API_KEY is None:
+            return
+
         origins = ['Attundavägen 29', 'Förmansvägen 11']
         destinations = ['Friskis&Svettis Abrahamsberg, Registervägen 38, 168 31 Bromma',
                         'Friskis&Svettis, Skomakargatan 9, 781 70 Borlänge']
@@ -224,3 +228,8 @@ class MatchingTest(TestCase):
 
         self.assertTrue(mock_travel_times.called)
         self.assertGreater(len(matches), 1)
+
+    @patch('matching.tasks.find_matches', side_effect=lambda x, y: [])
+    def test_match_celery_task(self, find_match_mock):
+        matching_task()
+        find_match_mock.assert_called_once()

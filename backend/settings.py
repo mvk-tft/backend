@@ -103,6 +103,7 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 
 if TESTING:
     # noinspection PyUnresolvedReferences
+    print('Using testing database')
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',

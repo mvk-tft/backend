@@ -94,14 +94,14 @@ class CompanyTestCase(TestCase):
 
     # Test that 1000 companies can be created
     def test_create_1000_companies(self):
-        numComp = 1000
-        for i in range(numComp):
+        num_comp = 1000
+        for i in range(num_comp):
             company = to_json_data(mommy.prepare(Company, name=f'company{i}'), CompanySerializer)
             response = post_request('/api/company/', company, self.primary_user)
             self.assertEqual(response.status_code, 201)
 
         companies = Company.objects.all()
-        self.assertEqual(len(companies), numComp)
+        self.assertEqual(len(companies), num_comp)
 
         for i, company in enumerate(companies):
             self.assertEqual(company.name, f'company{i}')
