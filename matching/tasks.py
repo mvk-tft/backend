@@ -77,7 +77,6 @@ def find_matches(nearby_shipments):
                     }
 
                     total_time = src_travel_time + travel_time + dst_travel_time
-
                     graph.add_edge(f.pk, -s.pk, weight=max_time - total_time)
         results += [(f, s) if f >= 0 else (s, f) for (f, s) in nx.max_weight_matching(graph, maxcardinality=True)]
     return results, estimated_times
