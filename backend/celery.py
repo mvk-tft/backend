@@ -15,9 +15,4 @@ app.conf.beat_schedule = {
         'schedule': crontab(minute='*/1'),
         'args': (),
     },
-    'update-rejections': {
-        'task': 'matching.tasks.update_rejections_task',
-        'schedule': 30,
-        'args': (),
-    }
 }

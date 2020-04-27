@@ -25,12 +25,13 @@ services:
       - "8000:8000"
     depends_on:
       - db
+    links:
+      - celery-beat
   celery-worker:
     build: .
     command: bash -c "pip install -r requirements.txt && celery -A backend worker -l info"
     depends_on:
       - redis
-      - web
     env_file:
       - dev.env
     volumes:

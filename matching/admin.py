@@ -1,3 +1,8 @@
 from django.contrib import admin
 
-# Register your models here.
+from matching.models import Match
+
+
+@admin.register(Match)
+class MatchAdmin(admin.ModelAdmin):
+    pass

@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.contrib.postgres.fields import JSONField
 from django_json_widget.widgets import JSONEditorWidget
 
-from api.models import Truck, Company, Cargo, Shipment
+from api.models import Truck, Company, Cargo, Shipment, Location
 
 
 @admin.register(Company)
@@ -28,3 +28,8 @@ class ShipmentAdmin(admin.ModelAdmin):
     formfield_overrides = {
         JSONField: {'widget': JSONEditorWidget}
     }
+
+
+@admin.register(Location)
+class LocationAdmin(admin.ModelAdmin):
+    pass

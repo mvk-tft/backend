@@ -24,12 +24,12 @@ class Location(models.Model):
 
 
 class Company(models.Model):
+    class Meta:
+        verbose_name_plural = 'Companies'
+
     name = models.CharField(max_length=255)
     description = models.TextField(blank=True)
     sign_up_datetime = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        verbose_name_plural = 'Companies'
 
     def __str__(self):
         return self.name
@@ -45,13 +45,13 @@ class Truck(models.Model):
 
 
 class Shipment(models.Model):
-    starting_location = models.ForeignKey(Location, on_delete=models.PROTECT, related_name='shipment_sources')
-    destination_location = models.ForeignKey(Location, on_delete=models.PROTECT, related_name='shipment_targets')
+    origin = models.ForeignKey(Location, on_delete=models.PROTECT, related_name='shipment_sources')
+    destination = models.ForeignKey(Location, on_delete=models.PROTECT, related_name='shipment_targets')
     earliest_start_time = models.DateTimeField()
     latest_start_time = models.DateTimeField()
     earliest_arrival_time = models.DateTimeField()
     latest_arrival_time = models.DateTimeField()
-    truck = models.ForeignKey(Truck, on_delete=models.DO_NOTHING, null=True)
+    truck = models.ForeignKey(Truck, on_delete=models.DO_NOTHING, null=True, blank=True)
     company = models.ForeignKey(Company, on_delete=models.CASCADE)
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
