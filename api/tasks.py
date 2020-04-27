@@ -11,7 +11,10 @@ logger = get_task_logger(__name__)
 
 @shared_task(bind=True)
 def geocode_location(self, location_pk):
-    loc = models.Location.objects.get(pk=location_pk)
+    try:
+        loc = models.Location.objects.get(pk=location_pk)
+    except models.Location.DoesNotExist:
+        return
     try:
         lat, lng, formatted_address, postal_code, place_id = request_geocoding(loc.address, loc.city)
     except ValueError:
