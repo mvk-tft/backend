@@ -61,6 +61,9 @@ def find_matches(nearby_shipments):
                     continue
 
                 s = value[j]
+                if f.company == s.company:
+                    continue
+
                 src_travel_time = src_src_time[i][j]
                 dst_travel_time = dst_dst_time[j][i]
                 travel_time = src_dst_time[j]
