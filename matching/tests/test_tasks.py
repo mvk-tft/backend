@@ -208,7 +208,7 @@ class MatchingTestCase(TestCase):
         matches, _ = find_matches(nearby_shipments)
 
         self.assertEqual(mock.call_count, 9)
-        self.assertListEqual(matches, [(self.first.pk, self.third.pk)])
+        self.assertListEqual(matches, [(self.first.pk, -self.third.pk)])
 
     @patch('matching.task_helpers.requests.get', autospec=True, side_effect=get_request_mock)
     def test_find_match_with_already_waiting_matches(self, mock):
