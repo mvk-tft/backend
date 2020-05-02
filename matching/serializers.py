@@ -10,4 +10,4 @@ class MatchSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Match
-        fields = ['outer_shipment', 'inner_shipment', 'status']
+        fields = '__all__'
