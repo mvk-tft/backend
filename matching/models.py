@@ -24,11 +24,11 @@ class Match(models.Model):
 
     def save(self, *args, **kwargs):
         if self.pk:
-            prev = Match.objects.get(self.pk)
+            prev = Match.objects.get(pk=self.pk)
             if (prev.inner_shipment_confirmed or self.inner_shipment_confirmed) and (
                     prev.outer_shipment_confirmed or self.outer_shipment_confirmed):
                 self.status = Match.Status.CONFIRMED
         super(Match, self).save(*args, **kwargs)
 
     def __str__(self):
-        return f'O: {self.outer_shipment} - I: {self.inner_shipment}'
+        return f'#{self.pk} - O: {self.outer_shipment} - I: {self.inner_shipment}'

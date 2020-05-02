@@ -3,9 +3,9 @@ from django.http import HttpResponse
 from rest_framework import generics
 from rest_framework.decorators import permission_classes, api_view
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 
 from matching.models import Match
-from matching.permissions import IsMatchedUser
 from matching.serializers import MatchSerializer
 
 
@@ -17,18 +17,8 @@ class MatchList(generics.ListAPIView):
         if self.request.user.is_staff:
             return Match.objects.all()
         return Match.objects.filter(
-            Q(inner_shipment__company=self.request.user.company) | Q(outer_shipment__company=self.request.user.company))
-
-
-class MatchDetail(generics.UpdateAPIView):
-    serializer_class = MatchSerializer
-    permission_classes = [IsAuthenticated, IsMatchedUser]
-
-    def get_queryset(self):
-        if self.request.user.is_staff:
-            return Match.objects.all()
-        return Match.objects.filter(
-            Q(inner_shipment__company=self.request.user.company) | Q(outer_shipment__company=self.request.user.company))
+            Q(inner_shipment__company=self.request.user.company) | Q(outer_shipment__company=self.request.user.company),
+            ~Q(status=Match.Status.REJECTED))
 
 
 @api_view(['PUT'])
@@ -56,4 +46,4 @@ def update_match_status(request, pk):
             match.inner_shipment_confirmed = True
     match.save()
 
-    return HttpResponse(status=200)
+    return Response(MatchSerializer(match).data if status != Match.Status.REJECTED else {'id': match.id}, status=200)

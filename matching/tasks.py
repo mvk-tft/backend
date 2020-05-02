@@ -22,7 +22,10 @@ def matching_task():
                                                                                  'destination') \
         .prefetch_related('cargo_set').annotate(cargo_weight=Coalesce(Sum('cargo__weight'), 0)).annotate(
         cargo_volume=Coalesce(Sum('cargo__volume'), 0))
-    matches, estimated_times = find_matches(split_shipments(shipments))
+    rejected_matches = tuple(map(lambda m: (m.outer_shipment.id, m.inner_shipment.id),
+                                 Match.objects.filter(status=Match.Status.REJECTED)))
+
+    matches, estimated_times = find_matches(split_shipments(shipments), rejected_matches)
     prepared = []
     for (f, s) in matches:
         # Outer shipment is the one going the whole route and whose truck will be used
@@ -37,7 +40,7 @@ def matching_task():
     Match.objects.bulk_create(prepared)
 
 
-def find_matches(nearby_shipments):
+def find_matches(nearby_shipments, rejected_matches=()):
     graph = nx.Graph()
     results = []
     estimated_times = {}
@@ -59,9 +62,10 @@ def find_matches(nearby_shipments):
             for j in range(count):
                 if i == j:
                     continue
-
                 s = value[j]
                 if f.company == s.company:
+                    continue
+                if (f.pk, s.pk) in rejected_matches or (s.pk, f.pk) in rejected_matches:
                     continue
 
                 src_travel_time = src_src_time[i][j]
