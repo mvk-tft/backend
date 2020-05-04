@@ -44,7 +44,8 @@ class ShipmentSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         origin = validated_data.pop('origin', '')
         dst = validated_data.pop('destination', '')
-        # TODO: Find existing Location if any
+
+        # TODO: Find existing Location if any, 'contains' is not sufficient in reality
         try:
             origin = Location.objects.get(address__contains=origin['address'])
         except (Location.DoesNotExist, Location.MultipleObjectsReturned):
@@ -56,14 +57,15 @@ class ShipmentSerializer(serializers.ModelSerializer):
             destination = Location.objects.create(**dst)
 
         cargo = validated_data.pop('cargo', [])
-
         truck = validated_data.pop('truck_instance', None)
+
         if truck is not None:
             validated_data.pop('truck', None)
             truck = Truck.objects.create(**truck)
             shipment = Shipment.objects.create(**validated_data, origin=origin,
                                                destination=destination, truck=truck)
         else:
+            # TODO: Prohibit using a truck that's also registered for another shipment at the same time
             shipment = Shipment.objects.create(**validated_data, origin=origin,
                                                destination=destination)
 
@@ -75,6 +77,7 @@ class ShipmentSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         origin = validated_data.pop('origin', '')
         dst = validated_data.pop('destination', '')
+
         # TODO: Find existing Location if any
         try:
             origin = Location.objects.get(address__contains=origin['address'])
@@ -85,6 +88,8 @@ class ShipmentSerializer(serializers.ModelSerializer):
             destination = Location.objects.get(address__contains=dst['address'])
         except (Location.DoesNotExist, Location.MultipleObjectsReturned):
             destination = Location.objects.create(**dst)
+
+        # TODO: Update cargo as well
 
         validated_data['origin'] = origin
         validated_data['destination'] = destination

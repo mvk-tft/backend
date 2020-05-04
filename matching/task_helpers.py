@@ -9,6 +9,9 @@ from api.models import Shipment
 
 
 def split_shipments(shipments):
+    # TODO: Split using a more fine-tuned parameter than cities
+    #  e.g a custom map of addresses which are grouped together (time consuming to create, offers great control)
+    #  or maybe postal codes or cities + another parameter
     nearby_shipments = {}
     for shipment in shipments:
         cities = (shipment.origin.city, shipment.destination.city)
@@ -95,7 +98,8 @@ def calculate_travel_times(shipments: [Shipment]):
     origins = list(map(lambda shipment: shipment.origin.address, shipments))
     destinations = list(map(lambda shipment: shipment.destination.address, shipments))
 
-    # TODO: Optimize requests, restrict to 100 elements at most per request, 1000 per second
+    # TODO: Optimize requests, restrict to 100 elements at most per request, 1000 per second.
+    #  Not sustainable, use a another solution to calculate travel times
     src_src_time, src_dst_time, dst_dst_time = [], [], []
     for i in range(count):
         req_src, req_dst = [origins[i]], [destinations[i]]
@@ -136,7 +140,7 @@ def request_distances_and_travel_times(origins, destinations):
         travel_time.append([])
         for j, element in enumerate(row['elements']):
             if element['status'] != 'OK':
-                # TODO: Handle
+                # TODO: Handle, possibly by simply removing from results
                 raise RuntimeError(element['status'])
             distance[i].append(element['distance']['value'])
             travel_time[i].append(element['duration']['value'])
