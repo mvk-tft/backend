@@ -40,6 +40,7 @@ class UserManager(BaseUserManager):
 
 
 class CustomUser(AbstractUser):
+    # TODO: A username field may actually be more appropriate for this application
     username = None
     email = models.EmailField(unique=True)
     company = models.ForeignKey(Company, on_delete=models.DO_NOTHING, null=True)
