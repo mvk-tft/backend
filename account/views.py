@@ -37,7 +37,6 @@ class CurrentUserView(APIView):
         return Response(serializer.data)
 
 
-# TODO: Complete implementation
 @api_view(['POST'])
 @permission_classes([])
 def reset_password_request(request):
@@ -55,11 +54,12 @@ def reset_password_request(request):
     uid = urlsafe_base64_encode(force_bytes(user.pk))
     token = default_token_generator.make_token(user)
     link = reverse('reset_password_confirmed', kwargs={'uidb64': uid, 'token': token})
+
+    # TODO: Send e-mail (requires appropriate e-mail service configuration in settings)
     # send_password_reset_confirmation_email(email, f'{BASE_URL}{link}')
     return HttpResponse('E-mail sent successfully', status=200)
 
 
-# TODO: Complete implementation
 def reset_password_confirmed(request, uidb64, token):
     try:
         uid = urlsafe_base64_decode(uidb64)
@@ -71,6 +71,8 @@ def reset_password_confirmed(request, uidb64, token):
         password = CustomUser.objects.make_random_password()
         user.set_password(password)
         user.save()
+
+        # TODO: Send e-mail (requires appropriate e-mail service configuration in settings)
         # send_password_reset_done_email(user.email, password)
         return HttpResponseRedirect(f'{FRONTEND_URL}/')
     return HttpResponseRedirect(f'{FRONTEND_URL}/')
