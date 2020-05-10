@@ -12,7 +12,7 @@ app.autodiscover_tasks()
 app.conf.beat_schedule = {
     'match-every-minute': {
         'task': 'matching.tasks.matching_task',
-        'schedule': crontab(minute='*/10'),
+        'schedule': crontab(minute='*/1'),
         'args': (),
     },
 }
