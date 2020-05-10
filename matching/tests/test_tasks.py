@@ -216,6 +216,7 @@ class MatchingTestCase(TestCase):
         matching_task()
         matches = Match.objects.all()
 
+        #  TODO: Confirm the actual match instances
         self.assertEqual(mock.call_count, 0)
         self.assertEqual(len(matches), 1)
 
@@ -225,8 +226,9 @@ class MatchingTestCase(TestCase):
         matching_task()
         matches = Match.objects.all()
 
+        #  TODO: Confirm the actual match instances
         self.assertEqual(mock.call_count, 9)
-        self.assertEqual(len(matches), 2)
+        self.assertEqual(len(matches), 1)
 
     @patch('matching.tasks.calculate_travel_times', side_effect=randomize_times)
     def test_find_match_load(self, mock_travel_times):
@@ -246,7 +248,7 @@ class MatchingTestCase(TestCase):
         self.assertTrue(mock_travel_times.called)
         self.assertGreater(len(matches), 1)
 
-    @patch('matching.tasks.find_matches', side_effect=lambda _: ([], {}))
+    @patch('matching.tasks.find_matches', side_effect=lambda shipments, rejected: ([], {}))
     def test_match_celery_task(self, find_match_mock):
         matching_task()
         find_match_mock.assert_called_once()
