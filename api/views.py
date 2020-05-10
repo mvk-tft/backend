@@ -40,7 +40,6 @@ class TruckList(generics.ListCreateAPIView):
 
 # Retrieve, update or delete a truck instance
 class TruckDetail(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Truck.objects.all()
     serializer_class = TruckSerializer
     permission_classes = [IsAuthenticated]
 
