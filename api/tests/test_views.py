@@ -1,11 +1,12 @@
+import datetime
+
 from django.contrib.auth import get_user_model
 from django.test import TestCase
-import datetime
 from model_mommy import mommy
 from rest_framework.renderers import JSONRenderer
 from rest_framework.test import APIRequestFactory, APIClient
 
-from api.models import Company, Truck, Cargo, Shipment
+from api.models import Company, Truck, Cargo, Shipment, Location
 from api.serializers import CompanySerializer, TruckSerializer, CargoSerializer, ShipmentSerializer
 
 User = get_user_model()
@@ -79,6 +80,7 @@ class CompanyTestCase(TestCase):
 
         response = get_request(f'/api/company/{company.pk}/', self.primary_user)
         self.assertEqual(response.status_code, 200)
+
     # Test that a company cannot be found or retrieved when the user is not the owner of the company
 
     def test_get_company_as_non_staff_user(self):
@@ -207,22 +209,24 @@ class CargoTestCase(TestCase):
         self.second_user = mommy.make(User, is_staff=False)
         self.admin_user = mommy.make(User, is_staff=True)
 
-
         self.primary_company = mommy.make(Company)
         self.primary_user.company = self.primary_company
-        self.primary_shipment = mommy.make(Shipment, company=self.primary_company)
         self.primary_user.save()
+
+        self.test_loc = mommy.make(Location, is_geocoded=True)
+        self.primary_shipment = mommy.make(Shipment, company=self.primary_company, origin=self.test_loc,
+                                           destination=self.test_loc)
 
     # Create a truck and assign it to a company with primary_user as owner
     def create_cargo(self, **kwargs):
-        cargo = mommy.make(Cargo, **kwargs)
-        cargo.company = self.primary_company
-        cargo.save()
+        cargo = mommy.make(Cargo, company=self.primary_company, category='R', shipment=self.primary_shipment, **kwargs)
         return cargo
 
     # Test that a cargo can be created
     def test_create_cargo(self):
-        cargo = to_json_data(mommy.prepare(Cargo, company=self.primary_company, shipment=self.primary_shipment), CargoSerializer)
+        cargo = to_json_data(
+            mommy.prepare(Cargo, company=self.primary_company, category='R', shipment=self.primary_shipment),
+            CargoSerializer)
         response = post_request('/api/cargo/', cargo, self.primary_user)
         self.assertEqual(response.status_code, 201)
 
@@ -230,7 +234,10 @@ class CargoTestCase(TestCase):
     def test_create_1000_cargos(self):
         amount = 1000
         for i in range(amount):
-            cargo = to_json_data(mommy.prepare(Cargo, company=self.primary_company, shipment=self.primary_shipment, weight=i), CargoSerializer)
+            cargo = to_json_data(
+                mommy.prepare(Cargo, company=self.primary_company, category='R', shipment=self.primary_shipment,
+                              weight=i),
+                CargoSerializer)
             response = post_request('/api/cargo/', cargo, self.primary_user)
             self.assertEqual(response.status_code, 201)
 
@@ -246,7 +253,7 @@ class CargoTestCase(TestCase):
         response = delete_request(f'/api/cargo/{cargo.pk}/', self.primary_user)
         self.assertEqual(response.status_code, 204)
 
-# Test that a cargo can not be deleted by a user that isn't a owner
+    # Test that a cargo can not be deleted by a user that isn't a owner
     def test_delete_cargo_as_non_owner(self):
         cargo = self.create_cargo()
         response = delete_request(f'/api/cargo/{cargo.pk}/', self.second_user)
@@ -255,7 +262,7 @@ class CargoTestCase(TestCase):
     # Test that a cargo can be updated by a owner
     def test_update_cargo_as_owner(self):
         cargo = self.create_cargo()
-        cargo.weight= 100
+        cargo.weight = 100
         cargo_json = to_json_data(cargo, CargoSerializer)
 
         response = put_request(f'/api/cargo/{cargo.pk}/', cargo_json, self.primary_user)
@@ -266,8 +273,8 @@ class CargoTestCase(TestCase):
 
     # Test that a cargo can not be updated by a user that isn't a owner
     def test_update_cargo_as_non_owner(self):
-        cargo=self.create_cargo()
-        previous_cargo_weight=cargo.weight
+        cargo = self.create_cargo()
+        previous_cargo_weight = cargo.weight
         cargo.weight = 100
         cargo_json = to_json_data(cargo, CargoSerializer)
 
@@ -306,24 +313,20 @@ class ShipmentTestCase(TestCase):
         self.primary_truck = mommy.make(Truck)
         self.primary_user.company = self.primary_company
         self.primary_user.save()
+        self.test_loc = mommy.make(Location, is_geocoded=True)
 
     # Create a shipment and assign it to a company and a truck with primary_user as owner
     def create_shipment(self, **kwargs):
-        shipment = mommy.make(Shipment, **kwargs)
-        shipment.company = self.primary_company
-        shipment.truck = self.primary_truck
-        shipment.save()
+        shipment = mommy.make(Shipment, company=self.primary_company, truck=self.primary_truck, origin=self.test_loc,
+                              destination=self.test_loc, **kwargs)
         return shipment
 
     # Test that a shipment can be created
     def test_create_shipment(self):
-        shipment = to_json_data(mommy.prepare(Shipment, company=self.primary_company, truck=self.primary_truck), ShipmentSerializer)
-        response = post_request('/api/shipment/', shipment, self.primary_user)
-        self.assertEqual(response.status_code, 201)
-
-    # Test that a shipment can be created
-    def test_create_shipment(self):
-        shipment = to_json_data(mommy.prepare(Shipment, company=self.primary_company, truck=self.primary_truck), ShipmentSerializer)
+        shipment = to_json_data(
+            mommy.prepare(Shipment, company=self.primary_company, truck=self.primary_truck, origin=self.test_loc,
+                          destination=self.test_loc),
+            ShipmentSerializer)
         response = post_request('/api/shipment/', shipment, self.primary_user)
         self.assertEqual(response.status_code, 201)
 
@@ -331,7 +334,10 @@ class ShipmentTestCase(TestCase):
     def test_create_1000_shipment(self):
         amount = 1000
         for i in range(amount):
-            shipment = to_json_data(mommy.prepare(Shipment, company=self.primary_company, truck=self.primary_truck),ShipmentSerializer)
+            shipment = to_json_data(
+                mommy.prepare(Shipment, company=self.primary_company, truck=self.primary_truck, origin=self.test_loc,
+                              destination=self.test_loc),
+                ShipmentSerializer)
             response = post_request('/api/shipment/', shipment, self.primary_user)
             self.assertEqual(response.status_code, 201)
 
@@ -365,7 +371,7 @@ class ShipmentTestCase(TestCase):
 
     # Test that a shipment can not be updated by a user that isn't a owner
     def test_update_shipment_as_non_owner(self):
-        shipment=self.create_shipment()
+        shipment = self.create_shipment()
         prev = shipment.earliest_start_time
         shipment.earliest_start_time = shipment.earliest_start_time + datetime.timedelta(hours=4)
         shipment_json = to_json_data(shipment, ShipmentSerializer)
@@ -393,5 +399,3 @@ class ShipmentTestCase(TestCase):
         shipment = self.create_shipment()
         response = get_request(f'/api/shipment/{shipment.pk}/', self.admin_user)
         self.assertEqual(response.status_code, 200)
-
-
