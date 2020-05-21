@@ -76,6 +76,10 @@ def find_matches(nearby_shipments, rejected_matches=()):
                 if (f.pk, s.pk) in rejected_matches or (s.pk, f.pk) in rejected_matches:
                     continue
 
+                # TODO: Consider what types of categories are safe to ship together, i.e regular with warmed e.t.c.
+                #  Current categories are also probably not sufficient, a more complex system with tags and the ability
+                #  for the user to select disallowed categories to match with is probably necessary.
+
                 src_travel_time = src_src_time[i][j]
                 dst_travel_time = dst_dst_time[j][i]
                 travel_time = src_dst_time[j]
